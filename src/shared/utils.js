@@ -15,3 +15,12 @@ export const shuffleArray = (array) => {
   }
   return array
 }
+
+export const admin_guard = (to, from, next)=> {
+  next(v => {
+    const role = v.$store.getters.role
+    if (role !== "admin") {
+      next({ name: "Page404" })
+    }
+  })
+}

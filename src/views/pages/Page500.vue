@@ -5,20 +5,12 @@
         <b-col md="6">
           <div class="clearfix">
             <h1 class="float-left display-3 mr-4">500</h1>
-            <h4 class="pt-3">Houston, we have a problem!</h4>
-            <p class="text-muted">The page you are looking for is temporarily unavailable.</p>
+            <h4 class="pt-3">We have a problem!</h4>
+            <p class="text-muted">
+              {{ error_messages[id] }}
+              <b-button class="btn-ghost-secondary" block :to="{name: 'Home'}">Home Page</b-button>
+            </p>
           </div>
-          <b-input-group>
-            <b-input-group-prepend>
-              <b-input-group-text>
-                <i class="fa fa-search"></i>
-              </b-input-group-text>
-            </b-input-group-prepend>
-            <input id="prependedInput" class="form-control" size="16" type="text" placeholder="What are you looking for?">
-            <b-input-group-append>
-              <b-button variant="info">Search</b-button>
-            </b-input-group-append>
-          </b-input-group>
         </b-col>
       </b-row>
     </div>
@@ -27,6 +19,24 @@
 
 <script>
 export default {
-  name: 'Page500'
+  name: "Page500",
+  props: {
+    id: {
+      type: String,
+      default: "not_available"
+    }
+  },
+  computed: {
+    error_messages() {
+      return this.$store.getters.error_messages
+    }
+  },
+  beforeDestroy() {
+    this.$store.dispatch("REMOVE_ERROR_MESSAGE", this.id)
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$store.dispatch("REMOVE_ERROR_MESSAGE", this.id)
+    next()
+  }
 }
 </script>
