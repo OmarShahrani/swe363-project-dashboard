@@ -6,20 +6,40 @@
       </b-col>
     </b-row>
     <b-row>
-      <b-col sm="6" lg="3" v-for="(s,index) in services" :key="s.id">
+      <b-col sm="6" lg="3" v-for="s in services" :key="s.id">
         <b-card
           @mouseover="showShadow(s.id)"
           @mouseleave="hideShadow(s.id)"
           @click="addRequest(s.id)"
           no-body
-          :class="{'shadow-lg border rounded div-pointer': raised.includes(s.id) ,'bg-success': index % services.length===0, 'bg-primary': index % services.length===1,'bg-dark': index % services.length===2}"
+          :class="{'shadow-lg border rounded div-pointer': raised.includes(s.id) && !inactive_services.includes(s.id) ,'bg-light':true}"
         >
           <b-card-body class="pb-2">
-            <b-button class="float-right" @click="addRequest(s.id)" variant="transparent p-0" right>
+            <b-button
+              v-if="!inactive_services.includes(s.id)"
+              class="float-right text-primary"
+              @click.stop="addRequest(s.id)"
+              variant="transparent p-0"
+              right
+            >
               <i class="icon-plus"></i>
             </b-button>
-            <h4 class="mb-2">{{s.name}}</h4>
+            <div style="position: relative;">
+              <h4 class="mb-2">{{s.name}}</h4>
+              <span
+                style="position: relative; margin-top: -22px;"
+                class="font-weight-bold text-danger"
+                v-if="inactive_services.includes(s.id)"
+              >(not available at this time)</span>
+            </div>
             <p>{{s.description}}</p>
+            <div class="text-right">
+              <b-button
+                v-if="role==='admin'"
+                @click.stop="toggleService(s.id)"
+                :variant="(inactive_services.includes(s.id) && 'success')|| 'danger'"
+              >{{(inactive_services.includes(s.id) && 'Make available')|| 'Make unavailable'}}</b-button>
+            </div>
           </b-card-body>
         </b-card>
       </b-col>
@@ -77,7 +97,7 @@
 </template>
 
 <script>
-import moment from "moment"
+import moment from "moment";
 
 export default {
   name: "dashboard",
@@ -87,93 +107,102 @@ export default {
   }),
   computed: {
     user() {
-      return this.$store.getters.user
+      return this.$store.getters.user;
     },
     services() {
-      return this.$store.getters.services
+      return this.$store.getters.services;
+    },
+    inactive_services() {
+      return this.$store.getters.inactive_services;
     },
     requests() {
-      let requests = this.$store.getters.requests
-      let statusOptions = this.$store.getters.statusOptions
+      let requests = this.$store.getters.requests;
+      let statusOptions = this.$store.getters.statusOptions;
       requests = requests.map(v => {
-        let tempv = v
-        const { due = null, requestedAt, status } = tempv
+        let tempv = v;
+        const { due = null, requestedAt, status } = tempv;
         if (due !== null) {
           if (statusOptions.filter(so => so.value === status).length === 0) {
             if (moment(due).unix() < moment().unix()) {
-              tempv = { ...tempv, status: "overdue" }
+              tempv = { ...tempv, status: "overdue" };
             }
           }
         }
-        return tempv
-      })
-      const { role, username } = this.user
-      this.role = role
+        return tempv;
+      });
+      const { role, username } = this.user;
+      this.role = role;
       if (role === "admin") {
-        return requests
+        return requests;
       } else {
         return requests.filter(v => {
-          const { assignedTo = null, requestedBy } = v
+          const { assignedTo = null, requestedBy } = v;
           return (
             (role === "staff" && assignedTo === username) ||
             requestedBy === username
-          )
-        })
+          );
+        });
       }
     }
   },
   methods: {
+    toggleService(name) {
+      this.$store.dispatch("TOGGLE_SERVICE", name);
+    },
     hideShadow(id) {
-      this.raised = this.raised.filter(v => v !== id)
+      this.raised = this.raised.filter(v => v !== id);
     },
     showShadow(id) {
-      this.raised.push(id)
+      this.raised.push(id);
     },
     flag(value) {
       switch (value) {
         case "open":
-          return "text-warning bg-light"
-          break
+          return "text-warning bg-light";
+          break;
         case "pending":
-          return "text-info bg-dark"
-          break
+          return "text-info bg-dark";
+          break;
         case "completed":
-          return "text-success"
-          break
+          return "text-success";
+          break;
         case "closed":
-          return "text-success bg-dark"
-          break
+          return "text-success bg-dark";
+          break;
         case "overdue":
-          return "text-danger"
-          break
+          return "text-danger";
+          break;
       }
     },
     removeRequest(r) {
-      this.$store.dispatch("REMOVE_REQUEST", r)
+      this.$store.dispatch("REMOVE_REQUEST", r);
     },
     addRequest(id) {
-      const user = this.$store.getters.user
-      const username = user.username
+      if (this.inactive_services.includes(id)) {
+        return false;
+      }
+      const user = this.$store.getters.user;
+      const username = user.username;
       const request = {
         type: "request",
         requestedBy: username,
         requestedAt: new Date().toISOString(),
         service: id,
         status: "pending"
-      }
-      this.$store.dispatch("ADD_REQUEST", request)
+      };
+      this.$store.dispatch("ADD_REQUEST", request);
     },
     serviceName(name) {
-      return this.services.filter(v => v.id === name).map(v => v.name)[0]
+      return this.services.filter(v => v.id === name).map(v => v.name)[0];
     },
     icon(name) {
-      return this.services.filter(v => v.id === name).map(v => v.icon)[0]
+      return this.services.filter(v => v.id === name).map(v => v.icon)[0];
     },
     requestedAt(date) {
-      return moment(date).format("DD/MM/YYYY -- HH:mm")
+      return moment(date).format("DD/MM/YYYY -- HH:mm");
     }
   }
-}
+};
 </script>
 
 <style>
