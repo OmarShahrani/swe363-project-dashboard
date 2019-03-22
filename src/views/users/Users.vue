@@ -79,7 +79,7 @@ export default {
       fields: [
         { key: "id" },
         { key: "name" },
-        { key: "registered" },
+        { key: "created_at" },
         { key: "role" },
         { key: "status" }
       ],

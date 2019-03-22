@@ -6,7 +6,7 @@
         <h2>KFUPM</h2>
       </b-link>
       <SidebarToggler class="d-md-down-none" display="lg"/>
-      <b-navbar-nav class="d-md-down-none">
+      <b-navbar-nav class="d-sm-down-none">
         <b-nav-item class="px-3" to="/dashboard">Dashboard</b-nav-item>
         <b-nav-item class="px-3" to="/users" v-if="role==='admin'" exact>Users</b-nav-item>
       </b-navbar-nav>

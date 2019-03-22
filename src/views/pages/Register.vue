@@ -8,6 +8,8 @@
               <b-form>
                 <h1>Register</h1>
                 <p class="text-muted">Create your account</p>
+                <b-alert :v-if="register_errors" variant="danger" dismissible>{{register_errors}}</b-alert>
+
                 <b-input-group class="mb-3">
                   <b-input-group-prepend>
                     <b-input-group-text>
@@ -152,6 +154,10 @@ export default {
     validated: false
   }),
   methods: {
+    register_errors() {
+      const { register_errors = null } = this.$store.getters.global_erros
+      return register_errors
+    },
     async validateForm() {
       try {
         const valid = await this.$validator.validateAll()
@@ -163,20 +169,16 @@ export default {
         console.log("Register.validateForm", error)
       }
     },
-    createAccount() {
+    async createAccount() {
       const user = {
-        _id: this.username,
-        id: this.username,
-        registered:  new Date().toISOString(),
-        status: "Active",
+        status: "active",
         username: this.username,
         name: this.name,
         email: this.email,
         password: this.password,
         role: "guest",
-        type: "user"
+        created_at: new Date().toISOString()
       }
-
       this.$store.dispatch("CREATE_ACCOUNT", user)
     }
   },

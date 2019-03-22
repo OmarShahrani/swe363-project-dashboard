@@ -2,7 +2,7 @@
   <b-row>
     <b-col cols="12" lg="6">
       <b-card no-header>
-        <template slot="header">Username: {{ $route.params.id }}</template>
+        <template slot="header">Username: {{ name }}</template>
         <b-table
           striped
           small
@@ -47,6 +47,7 @@ export default {
   data: () => {
     return {
       selected: "first",
+      name: '',
       options: [
         { text: "Admin", value: "admin" },
         { text: "Guest", value: "guest" },
@@ -58,7 +59,8 @@ export default {
   computed: {
     items() {
       return id => {
-        const user = this.$store.getters.userbyid(id) || []
+        const user = this.$store.getters.userbyid(parseInt(id)) || []
+        this.name = user[0].name || ''
         if (user.length === 0) {
           this.selected = "guest"
           return [{ key: "key", value: "value" }]
@@ -76,7 +78,7 @@ export default {
       // this.$router.replace({path: '/users'})
     },
     updateRole(id) {
-      const user = this.$store.getters.userbyid(id)[0]
+      const user = this.$store.getters.userbyid(parseInt(id))[0]
       this.$store.dispatch("UPDATE_USER", { ...user, role: this.selected })
     }
   }

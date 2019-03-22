@@ -28,13 +28,7 @@
             </b-form-group>
 
             <b-form-group label="Notes" label-for="notes" :label-cols="3">
-              <b-form-input
-                id="notes"
-                :textarea="true"
-                :rows="3"
-                v-model="request.notes"
-                placeholder="Notes.."
-              ></b-form-input>
+              <b-form-textarea id="notes" v-model="request.notes" rows="6" max-rows="10"/>
             </b-form-group>
 
             <b-form-group v-if="canAssign" label="Assgin To" label-for="status" :label-cols="3">
@@ -65,7 +59,7 @@
 <script>
 import moment from "moment"
 export default {
-  name: "forms",
+  name: "RquestForm",
   props: ["id"],
   data() {
     return {
@@ -103,6 +97,7 @@ export default {
         v = { ...v, status: this.status }
       }
       this.request = { ...v }
+      console.log(v)
       this.$store.dispatch("ADD_REQUEST", v)
       this.$router.replace({ name: "Home" })
     },
@@ -112,13 +107,14 @@ export default {
   },
   mounted() {
     const requests = this.$store.getters.requests
-    const req = requests.filter(v => v._id === this.id)[0]
+    const req = requests.filter(v => v.id === this.id)[0]
     const { status } = req
     this.status =
       this.statusOptions.filter(v => v.value === status).length > 0
         ? status
         : null
-    const requester = this.$store.getters.userbyid(req.requestedBy)
+    const requester = this.$store.getters.userbyusername(req.requestedBy)
+
     this.requester = { ...requester[0] }
     const users = this.$store.getters.users
     this.staff = users.filter(v => v.role === "staff")
