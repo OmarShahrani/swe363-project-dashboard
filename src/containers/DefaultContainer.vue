@@ -29,6 +29,7 @@
       <main class="main">
         <Breadcrumb :list="list"/>
         <div class="container-fluid">
+          <loading></loading>
           <router-view></router-view>
         </div>
       </main>
@@ -63,6 +64,7 @@ import {
   Breadcrumb
 } from "@coreui/vue"
 import DefaultHeaderDropdownAccnt from "./DefaultHeaderDropdownAccnt"
+import Loading from "@/views/components/Loading"
 
 export default {
   name: "DefaultContainer",
@@ -74,7 +76,8 @@ export default {
     DefaultHeaderDropdownAccnt,
     SidebarToggler,
     SidebarNav,
-    SidebarMinimizer
+    SidebarMinimizer,
+    Loading
   },
   data() {
     return {
@@ -82,6 +85,9 @@ export default {
     }
   },
   computed: {
+    busy() {
+      return this.$store.getters.busy
+    },
     pending() {
       return this.$store.getters.noofrequests("pending")
     },

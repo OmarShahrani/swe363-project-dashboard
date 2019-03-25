@@ -9,8 +9,7 @@ import { statusOptions, error_messages } from '../data/initial_state'
 
 Vue.use(Vuex)
 
-const baseURL = 'http://codeigniter.app1:81/api/'
-//  "http://www.ccse.kfupm.edu.sa/~st201416900/projects/server/index.php/api/maintenance/users"
+const baseURL = process.env.VUE_APP_APIURL
 const session_duration = 60 * 60
 
 const axiosInstant = axios.create({ baseURL })
@@ -199,6 +198,7 @@ const store = new Vuex.Store({
       router.replace({ name: 'Page500', params: { id: payload.id } })
     },
     UPDATE_USER: async ({ commit, getters, dispatch }, payload) => {
+      commit('set_busy', true)
       try {
         const users = getters.users
         const id = users
@@ -215,7 +215,9 @@ const store = new Vuex.Store({
             }
           })
         )
+        commit('set_busy', false)
       } catch (error) {
+        commit('set_busy', false)
         dispatch('DISPLAY_ERROR_MESSAGE', {
           id: 'update_user',
           message: error
@@ -223,6 +225,8 @@ const store = new Vuex.Store({
       }
     },
     ADD_REQUEST: async ({ commit, getters, dispatch }, payload) => {
+      commit('set_busy', true)
+
       try {
         const { id = null } = payload
 
@@ -244,7 +248,9 @@ const store = new Vuex.Store({
           })
         }
         commit('set_requests', requests)
+        commit('set_busy', false)
       } catch (error) {
+        commit('set_busy', false)
         dispatch('DISPLAY_ERROR_MESSAGE', {
           id: 'add_request',
           message: error
@@ -252,11 +258,15 @@ const store = new Vuex.Store({
       }
     },
     REMOVE_REQUEST: async ({ commit, getters }, { id }) => {
+      commit('set_busy', true)
+
       try {
         const requests = getters.requests
         await axiosInstant.delete(`requests/destroy/${id}`)
         commit('set_requests', requests.filter(v => v.id !== id))
+        commit('set_busy', false)
       } catch (error) {
+        commit('set_busy', false)
         dispatch('DISPLAY_ERROR_MESSAGE', {
           id: 'remove_request',
           message: error
@@ -265,6 +275,8 @@ const store = new Vuex.Store({
     },
 
     ADD_SERVICE: async ({ commit, getters, dispatch }, payload) => {
+      commit('set_busy', true)
+
       try {
         const { id = 'new', ...service } = payload
 
@@ -286,7 +298,9 @@ const store = new Vuex.Store({
           })
         }
         commit('set_services', services)
+        commit('set_busy', false)
       } catch (error) {
+        commit('set_busy', false)
         dispatch('DISPLAY_ERROR_MESSAGE', {
           id: 'add_service',
           message: error
@@ -294,11 +308,15 @@ const store = new Vuex.Store({
       }
     },
     REMOVE_SERVICE: async ({ commit, getters }, { id }) => {
+      commit('set_busy', true)
+
       try {
         const services = getters.services
         await axiosInstant.delete(`services/destroy/${id}`)
-        commit('set_services', services.filter(v => v.id !== parseInt(id)))
+        commit('set_services', services.filter(v => v.id !== id))
+        commit('set_busy', false)
       } catch (error) {
+        commit('set_busy', false)
         dispatch('DISPLAY_ERROR_MESSAGE', {
           id: 'remove_service',
           message: error

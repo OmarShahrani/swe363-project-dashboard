@@ -97,7 +97,6 @@ export default {
         v = { ...v, status: this.status }
       }
       this.request = { ...v }
-      console.log(v)
       this.$store.dispatch("ADD_REQUEST", v)
       this.$router.replace({ name: "Home" })
     },
